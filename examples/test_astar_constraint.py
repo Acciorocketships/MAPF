@@ -26,7 +26,7 @@ def main():
 		time.sleep(0.2)
 
 
-def constraint_fn(node, t):
+def constraint_fn(node, lastnode, t):
 	if t==2 and node==(3,1):
 		return False
 	return True

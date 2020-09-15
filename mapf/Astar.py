@@ -2,7 +2,7 @@ from queue import PriorityQueue
 from collections import deque
 import itertools
 
-def astar(env, start, goal, constraint_fn=lambda node, t: True):
+def astar(env, start, goal, constraint_fn=lambda node, lastnode, t: True, return_cost=False):
 	# env is an instance of an Environment subclass
 	# start is an instance of node (whatever type you define)
 	# end is an instance of node
@@ -13,14 +13,20 @@ def astar(env, start, goal, constraint_fn=lambda node, t: True):
 	heur = env.estimate(start, goal, t)
 	costmap = {start: cost}
 	prevmap = {start: None}
+	best = (None, float('inf'))
 	pq.put((heur+cost, start, t))
 	while not pq.empty():
 		totcost, curr, t = pq.get()
-		if cur==goal:
-			return construct_path(prevmap, curr)
+		if totcost < best[1]:
+			best = (curr, totcost)
+		if curr==goal:
+			if return_cost:
+				return (construct_path(prevmap, curr), totcost)
+			else:
+				return construct_path(prevmap, curr)
 		for child, step_cost in env.next(curr, t):
 			child_t = t+1
-			if not constraint_fn(child, child_t):
+			if not constraint_fn(child, curr, child_t):
 				continue
 			child_cost = costmap.get(curr, float('inf')) + step_cost
 			if child_cost < costmap.get(child, float('inf')):
@@ -28,11 +34,14 @@ def astar(env, start, goal, constraint_fn=lambda node, t: True):
 				costmap[child] = child_cost
 				child_totcost = env.estimate(child, goal, child_t) + child_cost
 				pq.put((child_totcost, child, child_t))
-	return None
+	if return_cost:
+		return (construct_path(prevmap, best[0]), float('inf'))
+	else:
+		return construct_path(prevmap, best[0])
 
 
-# TODO: find a way to get around the "swapping places" problem
-def astar_multi(env, starts, goals):
+# TODO: find a general solution to the "swapping places" problem
+def astar_multi(env, starts, goals, constraint_fn=lambda node, lastnode, t: True):
 	starts = tuple(starts)
 	goals = tuple(goals)
 	pq = PriorityQueue()
@@ -55,11 +64,13 @@ def astar_multi(env, starts, goals):
 		for child, step_cost in zip(children_combined, step_costs_combined):
 			if len(set(child)) < len(child): # skip if there is a collision
 				continue
+			child_t = t+1
+			if not constraint_fn(child, curr, child_t):
+				continue
 			child_cost = costmap.get(curr, float('inf')) + sum(step_cost)
 			if child_cost < costmap.get(child, float('inf')):
 				prevmap[child] = curr
 				costmap[child] = child_cost
-				child_t = t+1
 				child_totcost = sum([env.estimate(child_i, goal_i, child_t) for child_i, goal_i in zip(child, goals)]) + child_cost
 				pq.put((child_totcost, child, child_t))
 	return None
@@ -86,3 +97,46 @@ def construct_path_multi(prevmap, nodes):
 			seqs[i].appendleft(prev)
 		nodes = prevs
 	return [list(seq) for seq in seqs]
+
+
+
+def stay(env, start, goal, constraint_fn=lambda node, lastnode, t: True, start_t=0, T=0):
+	# env is an instance of an Environment subclass
+	# start is an instance of node (whatever type you define)
+	# end is an instance of node
+	# constraint_fn(node, t) returns False if node at time t is invalid
+	pq = PriorityQueue()
+	t = start_t
+	heur = env.estimate(start, goal, t)
+	tmap = {start: t}
+	prevmap = {(start, t): (None, t-1)}
+	best = ((start, t), float('inf'))
+	pq.put((heur, start, t))
+	while not pq.empty():
+		heur, curr, t = pq.get()
+		if t == T:
+			if heur < best[1]:
+				best = ((curr, t), heur)
+			if curr==goal:
+				return construct_path_stay(prevmap, (curr, t))
+		if t >= T:
+			continue
+		for child, _ in env.next(curr, t):
+			child_t = t+1
+			if not constraint_fn(child, curr, child_t):
+				continue
+			if child_t > tmap.get(child, 0):
+				tmap[child] = child_t
+				prevmap[(child, child_t)] = (curr, t)
+				child_heur = env.estimate(child, goal, child_t)
+				pq.put((child_heur, child, child_t))
+	return construct_path_stay(prevmap, best[0])
+
+
+def construct_path_stay(prevmap, node):
+	seq = deque([node[0]])
+	while prevmap[node][0] != None:
+		prev = prevmap[node]
+		seq.appendleft(prev[0])
+		node = prev
+	return list(seq)
