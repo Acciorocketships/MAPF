@@ -40,7 +40,6 @@ def astar(env, start, goal, constraint_fn=lambda node, lastnode, t: True, return
 		return construct_path(prevmap, best[0])
 
 
-# TODO: find a general solution to the "swapping places" problem
 def astar_multi(env, starts, goals, constraint_fn=lambda node, lastnode, t: True):
 	starts = tuple(starts)
 	goals = tuple(goals)

@@ -1,6 +1,6 @@
 import numpy as np
 from gridgym.Visualiser import *
-from Grid import *
+from mapf.Grid import *
 from mapf.Astar import *
 import time
 

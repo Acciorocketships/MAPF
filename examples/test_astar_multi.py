@@ -1,5 +1,5 @@
 import numpy as np
-from Grid import *
+from mapf.Grid import *
 from mapf.Astar import *
 from gridgym.Visualiser import *
 import time

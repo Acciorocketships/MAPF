@@ -1,12 +1,12 @@
 import numpy as np
-from Grid import *
+from mapf.Grid import *
 from mapf.CBS import *
 from gridgym.Visualiser import *
 import time
 
 
 def main():
-	size = 8
+	size = 16
 	N = 5
 	grid = np.random.rand(size, size) < 0.3
 
@@ -39,9 +39,9 @@ def main():
 					positions[j,:] = paths[j][-1]
 			goals = np.array(ends)
 			visualiser.render(grid=grid, positions=positions, goals=goals)
-			time.sleep(0.4)
+			time.sleep(0.3)
 
-	time.sleep(5)
+	import pdb; pdb.set_trace()
 
 
 def get_positions(grid, N):

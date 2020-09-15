@@ -1,5 +1,5 @@
 import numpy as np
-from Grid import *
+from mapf.Grid import *
 from mapf.Priority import *
 from gridgym.Visualiser import *
 import time
@@ -42,7 +42,7 @@ def main():
 			visualiser.render(grid=grid, positions=positions, goals=goals)
 			time.sleep(0.4)
 
-	time.sleep(5)
+	import pdb; pdb.set_trace()
 
 
 def get_positions(grid, N):

@@ -1,30 +1,38 @@
 from mapf.Astar import *
 
 def priority(env, starts, goals):
-	constraints = {}
-	steady_state_constraints = {}
-	paths = []
-	for start, goal in zip(starts, goals):
-		def constraint_fn(node, lastnode, t):
-			overlap = node in constraints.get(t, set())
-			swap = (lastnode in constraints.get(t, set())) and (node in constraints.get(t-1, set()))
-			ss_overlap = False
-			for ss_node, t_func in steady_state_constraints.items():
-				if ss_node==node and t_func(t):
-					ss_overlap = True
-					break
-			return not (overlap or swap or ss_overlap)
-		path = astar(env, start, goal, constraint_fn)
-		paths.append(path)
-		if path is not None:
-			for t, node in enumerate(path):
-				if t in constraints:
-					constraints[t].add(node)
-				else:
-					constraints[t] = set([node])
-			t_end = len(path)-1
-			node_end = path[-1]
-			steady_state_constraints[node_end] = lambda t: t >= t_end
-		else:
-			steady_state_constraints[start] = lambda t: t >= 0
+	paths = [None] * len(starts)
+	T = 0
+	redo = range(len(starts))
+	while len(redo) > 0:
+		constraints = {}
+		changed = False
+		for agent in redo:
+			path = compute(env, starts[agent], goals[agent], constraints, T)
+			t = len(path)-1
+			if t > T:
+				print(t, T)
+				T = t
+				redo = range(agent)
+				changed = True
+			paths[agent] = path
+		if not changed:
+			redo = range(0)
 	return paths
+
+
+def compute(env, start, goal, constraints, T):
+	def constraint_fn(node, lastnode, t):
+		overlap = node in constraints.get(t, set())
+		swap = (lastnode in constraints.get(t, set())) and (node in constraints.get(t-1, set()))
+		return not (overlap or swap)
+	path = astar(env, start, goal, constraint_fn)
+	t = len(path)-1
+	hold_path = stay(env=env, start=path[-1], goal=goal, constraint_fn=constraint_fn, start_t=t, T=T)
+	path = path + hold_path[1:]
+	for t, node in enumerate(path):
+		if t in constraints:
+			constraints[t].add(node)
+		else:
+			constraints[t] = set([node])
+	return path
