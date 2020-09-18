@@ -8,7 +8,7 @@ def priority(env, starts, goals):
 		constraints = {}
 		changed = False
 		for agent in redo:
-			path = compute(env, starts[agent], goals[agent], constraints, T)
+			path = compute_paths(env, starts[agent], goals[agent], constraints, T)
 			t = len(path)-1
 			if t > T:
 				print(t, T)
@@ -21,7 +21,7 @@ def priority(env, starts, goals):
 	return paths
 
 
-def compute(env, start, goal, constraints, T):
+def compute_paths(env, start, goal, constraints, T):
 	def constraint_fn(node, lastnode, t):
 		overlap = node in constraints.get(t, set())
 		swap = (lastnode in constraints.get(t, set())) and (node in constraints.get(t-1, set()))

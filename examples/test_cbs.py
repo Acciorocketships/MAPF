@@ -18,9 +18,6 @@ def main():
 
 	paths = cbs(env, starts, ends)
 
-	print("starts: %s, ends: %s" % (starts, ends))
-	print(paths)
-
 	visualiser = Visualiser(grid.shape)
 
 	if paths is None:

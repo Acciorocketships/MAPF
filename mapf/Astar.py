@@ -1,12 +1,17 @@
 from queue import PriorityQueue
 from collections import deque
 import itertools
+import numpy as np
 
 def astar(env, start, goal, constraint_fn=lambda node, lastnode, t: True, return_cost=False):
 	# env is an instance of an Environment subclass
 	# start is an instance of node (whatever type you define)
 	# end is an instance of node
 	# constraint_fn(node, t) returns False if node at time t is invalid
+	if isinstance(start, np.ndarray):
+		start = tuple(start)
+	if isinstance(goal, np.ndarray):
+		goal = tuple(goal)
 	pq = PriorityQueue()
 	cost = 0.0
 	t = 0.0
@@ -104,6 +109,10 @@ def stay(env, start, goal, constraint_fn=lambda node, lastnode, t: True, start_t
 	# start is an instance of node (whatever type you define)
 	# end is an instance of node
 	# constraint_fn(node, t) returns False if node at time t is invalid
+	if isinstance(start, np.ndarray):
+		start = tuple(start)
+	if isinstance(goal, np.ndarray):
+		goal = tuple(goal)
 	pq = PriorityQueue()
 	t = start_t
 	heur = env.estimate(start, goal, t)
