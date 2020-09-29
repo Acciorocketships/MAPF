@@ -21,7 +21,7 @@ def main():
 	print("starts: %s, ends: %s" % (starts, ends))
 	print(paths)
 
-	visualiser = Visualiser(grid.shape)
+	visualiser = Visualiser()
 
 	if paths is None:
 		visualiser.render(grid=grid, positions=np.array(starts), goals=np.array(ends))

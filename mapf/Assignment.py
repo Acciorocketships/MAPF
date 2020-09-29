@@ -6,20 +6,19 @@ class Assignment:
 
 	@staticmethod
 	def compute_matrix(env, starts, goals):
-		env = env
-		starts = starts
-		goals = goals
 		costmat = np.zeros((len(starts),len(goals)))
 		for i, start in enumerate(starts):
 			for j, goal in enumerate(goals):
+				prevval = env.grid[start[0],start[1]]
+				env.grid[start[0],start[1]] = False
 				_, cost = astar(env=env, start=start, goal=goal, return_cost=True)
+				env.grid[start[0],start[1]] = prevval
 				costmat[i,j] = cost
 		return costmat
 
 	@staticmethod
 	def hungarian(costmat):
-		stuck_mask = np.all(costmat==float('inf'), axis=1)
-		costmat[stuck_mask,:] = 0
+		costmat[costmat==float('inf')] = 1e6
 		m = Munkres()
 		idx_pairs = m.compute(costmat)
 		idxs = np.array(list(map(lambda e: e[1], idx_pairs)))

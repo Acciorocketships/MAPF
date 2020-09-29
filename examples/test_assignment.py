@@ -16,7 +16,7 @@ def main():
 	starts = np.array([tuple(start) for start in startend[:N,:]])
 	goals = np.array([tuple(goal) for goal in startend[N:,:]])
 
-	visualiser = Visualiser(grid.shape)
+	visualiser = Visualiser()
 
 	costmat = Assignment.compute_matrix(env, starts, goals)
 	print('cost matrix:')

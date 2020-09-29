@@ -18,7 +18,7 @@ def main():
 
 	paths = cbs(env, starts, ends)
 
-	visualiser = Visualiser(grid.shape)
+	visualiser = Visualiser()
 
 	if paths is None:
 		visualiser.render(grid=grid, positions=np.array(starts), goals=np.array(ends))

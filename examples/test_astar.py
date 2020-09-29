@@ -20,7 +20,7 @@ path = stay(env, start, end, T=20)
 print("start: %s, end: %s" % (start, end))
 print(path)
 
-visualiser = Visualiser(grid.shape)
+visualiser = Visualiser()
 
 for i in range(len(path)):
 	visualiser.render(grid=grid, positions=np.array([path[i]]), goals=np.array([end]))

@@ -138,7 +138,10 @@ def stay(env, start, goal, constraint_fn=lambda node, lastnode, t: True, start_t
 				prevmap[(child, child_t)] = (curr, t)
 				child_heur = env.estimate(child, goal, child_t)
 				pq.put((child_heur, child, child_t))
-	return construct_path_stay(prevmap, best[0])
+	path = construct_path_stay(prevmap, best[0])
+	for t in range(len(path),T-start_t+1):
+		path.append(path[-1])
+	return path
 
 
 def construct_path_stay(prevmap, node):
